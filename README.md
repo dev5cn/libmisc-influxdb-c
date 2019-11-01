@@ -12,6 +12,8 @@
 
 * export LIB_CURL=/home/dev5/tools/libcurl-7.xx.0/
 
+* export CXX_FLAGS="-g3 -O3"
+
 * chmod 775 build.sh clean.sh
 
 * ./build.sh
