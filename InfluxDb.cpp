@@ -117,13 +117,13 @@ shared_ptr<InfluxDbResultSet> InfluxDb::write(const string& dat)
 
 shared_ptr<InfluxDbResultSet> InfluxDb::httpGet(map<string, string> extra, const string& query)
 {
-	CURL *curl = ::curl_easy_init();
+	CURL* curl = ::curl_easy_init();
 	struct curl_slist* header = NULL;
 	for (auto& it : extra)
 	{
 		string str;
 		SPRINTF_STRING(&str, "%s: %s", it.first.c_str(), it.second.c_str())
-		header = curl_slist_append(header, str.c_str());
+		header = ::curl_slist_append(header, str.c_str());
 	}
 	if (this->https)
 	{
@@ -148,10 +148,10 @@ shared_ptr<InfluxDbResultSet> InfluxDb::httpGet(map<string, string> extra, const
 		::curl_easy_cleanup(curl);
 		return rst;
 	}
-	if (rspBody.empty())
-		return rst;
 	::curl_slist_free_all(header);
 	::curl_easy_cleanup(curl);
+	if (rspBody.empty())
+		return rst;
 	Json::Reader reader;
 	Json::Value root;
 	if (!reader.parse(rspBody, root) || !root.isObject())
@@ -246,13 +246,13 @@ shared_ptr<InfluxDbResultSet> InfluxDb::httpGet(map<string, string> extra, const
 
 shared_ptr<InfluxDbResultSet> InfluxDb::httpPost(map<string, string> extra, const string& endPoint, const string& query, const string& dat)
 {
-	CURL *curl = ::curl_easy_init();
+	CURL* curl = ::curl_easy_init();
 	struct curl_slist* header = NULL;
 	for (auto& it : extra)
 	{
 		string str;
 		SPRINTF_STRING(&str, "%s: %s", it.first.c_str(), it.second.c_str())
-		header = curl_slist_append(header, str.c_str());
+		header = ::curl_slist_append(header, str.c_str());
 	}
 	if (this->https)
 	{
@@ -280,10 +280,10 @@ shared_ptr<InfluxDbResultSet> InfluxDb::httpPost(map<string, string> extra, cons
 		::curl_easy_cleanup(curl);
 		return rst;
 	}
-	if (rspBody.empty())
-		return rst;
 	::curl_slist_free_all(header);
 	::curl_easy_cleanup(curl);
+	if (rspBody.empty())
+		return rst;
 	Json::Reader reader;
 	Json::Value root;
 	if (!reader.parse(rspBody, root) || !root.isObject())
@@ -305,6 +305,7 @@ string InfluxDb::urlEncode(const string& url)
 	char* ret = ::curl_easy_escape(curl, url.c_str(), url.length());
 	string str(ret);
 	::curl_free(ret);
+	::curl_easy_cleanup(curl);
 	return str;
 }
 
